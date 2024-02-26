@@ -31,6 +31,7 @@ jobs:
 
       - name: Terraform Apply or Destroy
         run: |
+          cd terraform
           terraform init
           terraform ${GITHUB_EVENT.INPUT_ACTION} -auto-approve
         env:
