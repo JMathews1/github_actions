@@ -2,11 +2,11 @@ name: Deploy Azure Resources with Terraform
 
 on:
   workflow_dispatch:
-    inputs:
-      REPO_NAME:
-        description: 'The name of the repository to create or use'
-        required: true
-        default: 'example-repo'
+    # inputs:
+    #   REPO_NAME:
+    #     description: 'The name of the repository to create or use'
+    #     required: true
+    #     default: 'example-repo'
 
 jobs:
   create_repo_and_deploy:
