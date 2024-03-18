@@ -2,13 +2,40 @@ name: Deploy Azure Resources with Terraform
 
 on:
   workflow_dispatch:
+    inputs:
+    REPO_NAME:
+      description: 'The name of the repository to create or use'
+      required: true
+      default: 'example-repo'
 
 jobs:
-  deploy:
+  create_repo_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Create New Repository
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          REPO_NAME=new-tf-repo
+          curl -X POST -H "Authorization: token $GH_TOKEN" -d "{\"name\":\"$REPO_NAME\"}" https://api.github.com/orgs/<YourOrgName>/repos
+          echo "New repository created: $REPO_NAME"
+
+      - name: Clone New Repository
+        run: |
+          git clone https://github.com/<YourOrgName>/new-tf-repo.git
+          cd new-tf-repo
+
+      - name: Copy Terraform Code to New Repository
+        run: |
+          cp -r ../src_terraform_code/* .
+          git config --local user.email "<YourEmail>"
+          git config --local user.name "<YourUsername>"
+          git add .
+          git commit -m "Add Terraform code"
+          git push
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -22,15 +49,15 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ./terraform
+        working-directory: ./new-tf-repo
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: ./terraform
+        working-directory: ./new-tf-repo
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: ./terraform
+        working-directory: ./new-tf-repo
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
