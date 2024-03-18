@@ -1,2 +1,3 @@
-variable "cluster_name" {}
-variable "azure_region" {}
+variable "example_storage_account" {
+  name = "teststor"
+}
