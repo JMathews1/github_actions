@@ -16,12 +16,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create New Repository
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          REPO_NAME=new-tf-repo
-          curl -X POST -H "Authorization: token $GH_TOKEN" -d "{\"name\":\"$REPO_NAME\"}" https://api.github.com/orgs/<YourOrgName>/repos
-          echo "New repository created: $REPO_NAME"
+      env:
+        TOKEN: ${{ secrets.PAT }}
+        REPO_NAME: ${{ github.event.inputs.REPO_NAME }} # Assuming you have REPO_NAME as an input
+      run: |
+        curl \
+          -X POST \
+          -H "Authorization: token $GH_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -d '{"name":"'$REPO_NAME'", "private":true}' \
+          "https://api.github.com/user/repos"
+
 
       - name: Clone New Repository
         run: |
